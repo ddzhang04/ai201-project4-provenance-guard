@@ -29,7 +29,7 @@ def appeal():
     if submission["appeal_status"] == "under_review":
         return jsonify({
             "message": "An appeal is already under review for this submission.",
-            "submission_id": submission_id,
+            "content_id": submission_id,
             "status": "under_review",
         }), 200
 

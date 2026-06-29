@@ -19,11 +19,11 @@ def issue_certificate():
     would include additional identity checks.
     """
     data = request.get_json(silent=True) or {}
-    submission_id = data.get("submission_id", "").strip()
+    submission_id = (data.get("content_id") or data.get("submission_id") or "").strip()
     creator_statement = data.get("creator_statement", "").strip()
 
     if not submission_id:
-        return jsonify({"error": "Missing 'submission_id'"}), 400
+        return jsonify({"error": "Missing 'content_id'"}), 400
 
     if not creator_statement:
         return jsonify({
@@ -53,7 +53,7 @@ def issue_certificate():
 
     return jsonify({
         **cert,
-        "submission_id": submission_id,
+        "content_id": submission_id,
         "label": {
             "variant": "provenance_certificate",
             "headline": "Verified Human Authorship",

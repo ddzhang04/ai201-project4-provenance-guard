@@ -144,8 +144,8 @@ def get_log(limit: int = 50, offset: int = 0) -> list[dict]:
     with _connect() as conn:
         rows = conn.execute(
             """
-            SELECT s.id, s.created_at, s.content_preview, s.attribution,
-                   s.ai_probability, s.confidence_score, s.appeal_status,
+            SELECT s.id as content_id, s.creator_id, s.created_at, s.content_preview,
+                   s.attribution, s.ai_probability, s.confidence_score, s.appeal_status,
                    a.creator_reasoning, a.created_at as appeal_at
             FROM submissions s
             LEFT JOIN appeals a ON a.submission_id = s.id

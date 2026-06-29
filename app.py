@@ -54,7 +54,7 @@ def create_app() -> Flask:
                 "POST /appeal": "Contest a classification decision",
                 "POST /certificate": "Issue a provenance certificate (stretch)",
                 "GET /log": "Audit log of all decisions",
-                "GET /submission/<id>": "Look up a specific submission",
+                "GET /submission/<content_id>": "Look up a specific submission by content_id",
                 "GET /analytics": "Detection patterns and statistics dashboard",
             },
             "signals": [

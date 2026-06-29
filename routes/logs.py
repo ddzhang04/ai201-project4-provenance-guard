@@ -19,9 +19,9 @@ def get_log():
     }), 200
 
 
-@logs_bp.route("/submission/<submission_id>", methods=["GET"])
-def get_submission(submission_id: str):
-    submission = database.get_submission(submission_id)
+@logs_bp.route("/submission/<content_id>", methods=["GET"])
+def get_submission(content_id: str):
+    submission = database.get_submission(content_id)
     if submission is None:
         return jsonify({"error": "Not found"}), 404
     return jsonify(submission), 200

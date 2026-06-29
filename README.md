@@ -128,8 +128,8 @@ Sample output (3 entries):
 ### `GET /analytics` *(stretch)*
 Detection patterns, appeal rates, and confidence stats.
 
-### `GET /submission/<id>`
-Look up a specific submission by ID.
+### `GET /submission/<content_id>`
+Look up a specific submission by its `content_id`.
 
 ---
 
