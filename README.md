@@ -26,13 +26,17 @@ Submit content for attribution analysis.
 
 **Request:**
 ```json
-{ "content": "Your poem, story excerpt, or blog post here..." }
+{
+  "text": "Your poem, story excerpt, or blog post here...",
+  "creator_id": "user-123"
+}
 ```
 
 **Response:**
 ```json
 {
-  "submission_id": "a1b2c3d4e5f6a1b2",
+  "content_id": "a1b2c3d4e5f6a1b2",
+  "creator_id": "user-123",
   "attribution": "uncertain",
   "ai_probability": 0.54,
   "confidence_score": 0.31,
@@ -46,12 +50,19 @@ Submit content for attribution analysis.
 }
 ```
 
+**curl example:**
+```bash
+curl -s -X POST http://localhost:5000/submit \
+  -H "Content-Type: application/json" \
+  -d '{"text": "The sun dipped below the horizon, painting the sky in hues of amber and rose. It is worth noting that this moment, while beautiful, underscores the ephemeral nature of human experience.", "creator_id": "test-user-1"}'
+```
+
 ### `POST /appeal`
 Contest a classification. Status updates to `"under_review"`.
 
 ```json
 {
-  "submission_id": "a1b2c3d4e5f6a1b2",
+  "content_id": "a1b2c3d4e5f6a1b2",
   "creator_reasoning": "I wrote this myself over several weeks — it's based on personal experience that no AI would know about."
 }
 ```
@@ -82,6 +93,7 @@ Sample output (3 entries):
     {
       "id": "abc123",
       "created_at": "2026-06-28T14:23:11+00:00",
+      "creator_id": "test-user-1",
       "content_preview": "Furthermore, it is important to note that the tapestry of human...",
       "attribution": "ai",
       "ai_probability": 0.87,
@@ -91,6 +103,7 @@ Sample output (3 entries):
     {
       "id": "def456",
       "created_at": "2026-06-28T14:20:05+00:00",
+      "creator_id": "test-user-2",
       "content_preview": "I honestly don't know how to start this. My dad died last spring...",
       "attribution": "human",
       "ai_probability": 0.11,
@@ -100,6 +113,7 @@ Sample output (3 entries):
     {
       "id": "ghi789",
       "created_at": "2026-06-28T14:18:44+00:00",
+      "creator_id": "test-user-3",
       "content_preview": "The light shifted in a way I can only describe as suspicious...",
       "attribution": "uncertain",
       "ai_probability": 0.51,

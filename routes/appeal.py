@@ -9,11 +9,12 @@ appeal_bp = Blueprint("appeal", __name__)
 @appeal_bp.route("/appeal", methods=["POST"])
 def appeal():
     data = request.get_json(silent=True) or {}
-    submission_id = data.get("submission_id", "").strip()
+    # Accept both "content_id" (spec field name) and "submission_id" for compatibility
+    submission_id = (data.get("content_id") or data.get("submission_id") or "").strip()
     creator_reasoning = data.get("creator_reasoning", "").strip()
 
     if not submission_id:
-        return jsonify({"error": "Missing 'submission_id'"}), 400
+        return jsonify({"error": "Missing 'content_id'"}), 400
 
     if not creator_reasoning:
         return jsonify({"error": "Missing 'creator_reasoning' — explain why you believe the classification is wrong"}), 400
@@ -39,7 +40,7 @@ def appeal():
 
     return jsonify({
         "appeal_id": appeal_id,
-        "submission_id": submission_id,
+        "content_id": submission_id,
         "status": "under_review",
         "message": (
             "Your appeal has been logged. The original classification has been flagged "

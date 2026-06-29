@@ -116,6 +116,37 @@ Appeals are captured but not automatically re-classified. This is by design — 
 3. Submission status updates to `"under_review"`
 4. A human reviewer examines the content and reasoning (out of scope for this system)
 
+## Anticipated Edge Cases
+
+### 1. Poetry with repetition and simple vocabulary
+A haiku or minimalist poem ("Rain falls. / I wait. / Nothing.") will have very low type-token ratio and high sentence-length uniformity — the same features that indicate AI. Stylometric and entropy signals will score it as AI-generated even though the terseness is a deliberate human aesthetic choice. The Groq LLM signal is more likely to recognize the genre, but may still be uncertain. **Mitigation:** the uncertain zone (0.21–0.79) is wide; such content should land there rather than getting an AI label. If it doesn't, the creator has a clear appeal path.
+
+### 2. Human-edited AI drafts
+A writer who uses AI for a first draft and then substantially rewrites it produces text that mixes AI structure (formulaic paragraph openings) with human touches (personal anecdotes, irregular punctuation). Both the LLM signal and heuristics will disagree, producing high signal variance and low confidence. The system will correctly label this "uncertain" — but neither label (AI nor human) is fully accurate, and there is no clean answer.
+
+### 3. Non-native English speakers
+Writers whose native language is not English often use more formal connectives ("Furthermore", "In addition") and more uniform sentence lengths — the exact patterns our heuristics flag as AI. A non-native speaker writing earnestly will be unfairly pushed toward the AI side of the score. **Mitigation:** asymmetric false-positive penalty + wide uncertain zone + appeals workflow.
+
+### 4. Very short content (< 100 words)
+Most statistical signals become unreliable with fewer than 100 words. A short tweet-length post gives the stylometric and entropy signals almost no data to work with. Both return low confidence, so the ensemble automatically downgrades toward uncertain. Short content almost never receives a high-confidence label.
+
+## AI Tool Plan
+
+### M3 — Submission endpoint + first signal
+- **Spec sections provided:** Detection signals section + Architecture diagram
+- **Requested output:** Flask app skeleton with `POST /submit` route stub + Groq LLM signal function (`groq_signal.py`)
+- **Verification:** Call `groq_signal.analyze()` directly on 3 test inputs (clearly AI text, clearly human text, ambiguous text). Confirm the returned `ai_probability` values are directionally correct before wiring into the endpoint.
+
+### M4 — Second signal + confidence scoring
+- **Spec sections provided:** Detection signals section + Uncertainty representation section + diagram
+- **Requested output:** Stylometric heuristics signal (`stylometric.py`) + confidence-weighted ensemble in `pipeline.py`
+- **Verification:** Check that `ai_probability` varies meaningfully between clearly AI text (>0.7 expected) and personal journal-style text (<0.35 expected). Confirm that a 0.51 score and a 0.91 score produce different `confidence_score` values and different label variants.
+
+### M5 — Production layer
+- **Spec sections provided:** Transparency label design section + Appeals workflow section + diagram
+- **Requested output:** Label generation logic (embedded in `pipeline.py`) + `POST /appeal` endpoint + `GET /log` endpoint
+- **Verification:** Test all three label variants are reachable by submitting text that produces each attribution. Confirm that `POST /appeal` updates `appeal_status` to `"under_review"` and that the appeal appears in `GET /log` output alongside the original decision.
+
 ## Stretch Features
 
 - **Ensemble detection (3 signals):** Implemented — see Signal 3 above

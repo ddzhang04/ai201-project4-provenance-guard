@@ -27,6 +27,7 @@ def init_db() -> None:
             CREATE TABLE IF NOT EXISTS submissions (
                 id          TEXT PRIMARY KEY,
                 created_at  TEXT NOT NULL,
+                creator_id  TEXT NOT NULL DEFAULT 'anonymous',
                 content_hash TEXT NOT NULL,
                 content_preview TEXT NOT NULL,
                 attribution TEXT NOT NULL,
@@ -61,9 +62,9 @@ def _make_id(prefix: str) -> str:
     return hashlib.sha1(raw.encode()).hexdigest()[:16]
 
 
-def log_submission(content: str, result: dict) -> str:
-    """Insert a submission into the audit log and return its ID."""
-    submission_id = _make_id("sub")
+def log_submission(content: str, result: dict, creator_id: str = "anonymous") -> str:
+    """Insert a submission into the audit log and return its ID (content_id)."""
+    content_id = _make_id("sub")
     content_hash = hashlib.sha256(content.encode()).hexdigest()
     content_preview = content[:200] + ("..." if len(content) > 200 else "")
     now = datetime.now(timezone.utc).isoformat()
@@ -72,13 +73,14 @@ def log_submission(content: str, result: dict) -> str:
         conn.execute(
             """
             INSERT INTO submissions
-                (id, created_at, content_hash, content_preview, attribution,
+                (id, created_at, creator_id, content_hash, content_preview, attribution,
                  ai_probability, confidence_score, signals_json, appeal_status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'none')
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'none')
             """,
             (
-                submission_id,
+                content_id,
                 now,
+                creator_id,
                 content_hash,
                 content_preview,
                 result["attribution"],
@@ -87,7 +89,7 @@ def log_submission(content: str, result: dict) -> str:
                 json.dumps(result["signals"]),
             ),
         )
-    return submission_id
+    return content_id
 
 
 def log_appeal(submission_id: str, creator_reasoning: str) -> str:
